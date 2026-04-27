@@ -1,0 +1,212 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../models/course_section_model.dart';
+import '../../../../utils/constants/colors.dart';
+import 'course_player.dart';
+
+class CourseSection extends StatefulWidget {
+  final String contentId;
+  final String name;
+  final String courseId;
+
+  const CourseSection({
+    super.key,
+    required this.contentId,
+    required this.name,
+    required this.courseId,
+  });
+
+  @override
+  State<CourseSection> createState() => _CourseSectionState();
+}
+
+class _CourseSectionState extends State<CourseSection> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  String? token;
+
+  void fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString('accessToken');
+    });
+  }
+
+  Future<List<SectionModel>> getMyCourses(contentId) async {
+    var coursesUrl = Uri.parse(
+      "https://api.emergekenya.org/api/v1/course-section/student/$contentId",
+    );
+    final response = await http.get(
+      coursesUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      var courseSection = json.decode(response.body);
+      final List body = courseSection['data']['sections'];
+      return body.map((e) => SectionModel.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load courses');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          leading: const BackButton(color: Colors.blueAccent),
+          title: Text(
+            'Course Sections',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: SkiiveColors.accent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      widget.name,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FutureBuilder<List<SectionModel>>(
+                  future: getMyCourses(widget.contentId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      List<SectionModel> sections = snapshot.data!;
+                      return CourseSectionList(
+                        sections: sections,
+                        courseId: widget.courseId,
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CourseSectionList extends StatelessWidget {
+  final List<SectionModel> sections;
+  final String courseId;
+
+  const CourseSectionList({
+    super.key,
+    required this.sections,
+    required this.courseId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30),
+      child: Column(
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                itemCount: sections.length,
+                itemBuilder: (context, index) {
+                  return CourseSectionListItem(
+                    section: sections[index],
+                    sections: sections,
+                    index: index,
+                    courseId: courseId,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CourseSectionListItem extends StatelessWidget {
+  final SectionModel section;
+  final List<SectionModel> sections;
+  final int index;
+  final String courseId;
+
+  const CourseSectionListItem({
+    super.key,
+    required this.section,
+    required this.sections,
+    required this.index,
+    required this.courseId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      tilePadding: const EdgeInsets.symmetric(vertical: 12),
+      leading: Text(section.number.toString()),
+      title: Text(section.title),
+      children: <Widget>[
+        Column(
+          children: section.subsections.map<Widget>((subsection) {
+            return GestureDetector(
+              onTap: () {
+                Get.to(
+                  CoursePlayer(
+                    subSectionId: subsection.id,
+                    subSectionTitle: subsection.title,
+                    sectionNumber: section.number,
+                    sectionTitle: section.title,
+                    sectionID: section.id,
+                    sections: sections,
+                    index: index,
+                    courseId: courseId,
+                  ),
+                );
+              },
+              child: ListTile(title: Text(subsection.title)),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}

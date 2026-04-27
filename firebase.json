@@ -1,0 +1,41 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "greenmed-d6902",
+          "appId": "1:75381408693:android:ed0f8dad3d28f71c51cffc",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "greenmed-d6902",
+          "configurations": {
+            "android": "1:75381408693:android:ed0f8dad3d28f71c51cffc",
+            "ios": "1:75381408693:ios:b36a94cc1503a3bc51cffc",
+            "web": "1:75381408693:web:3c915030c8df44ab51cffc",
+            "windows": "1:75381408693:web:f676877feebb403251cffc"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "project_info": {
+    "project_number": "75381408693",
+    "project_id": "greenmed-d6902",
+    "storage_bucket": "greenmed-d6902.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75381408693:android:aee9b0dbca50b37451cffc",
+        "android_client_info": {
+          "package_name": "com.company.greenmed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75381408693-og448t4fk8pr5uh5k9b3btp2ojak203m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.greenmed",
+            "certificate_hash": "8fdd9c87682bf18737d239d24d901cc0816551fa"
+          }
+        },
+        {
+          "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmJBN-1oPCzHvH5DqNxE5mNwiZYDMyl0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75381408693-9v5hv5l4qlv633h59ne0kdso8ghkfnp9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.greenmed"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75381408693:android:46168bbb0316e2df51cffc",
+        "android_client_info": {
+          "package_name": "com.example.greenmed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmJBN-1oPCzHvH5DqNxE5mNwiZYDMyl0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75381408693-9v5hv5l4qlv633h59ne0kdso8ghkfnp9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.greenmed"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75381408693:android:ed0f8dad3d28f71c51cffc",
+        "android_client_info": {
+          "package_name": "com.example.greenmed_doctor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmJBN-1oPCzHvH5DqNxE5mNwiZYDMyl0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75381408693-tmghq4fq0f9seams398th1omqf8r9fer.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75381408693-9v5hv5l4qlv633h59ne0kdso8ghkfnp9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.greenmed"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
