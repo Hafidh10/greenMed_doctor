@@ -6,10 +6,9 @@ import 'package:greenmed_doctor/utils/constants/colors.dart';
 import 'package:greenmed_doctor/utils/helpers/helper_functions.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'features/authentication/screens/courses/courses.dart';
 import 'features/authentication/screens/home/home.dart';
 import 'features/authentication/screens/profile/profile.dart';
-import 'features/authentication/screens/quiz/quiz_screen.dart';
+import 'features/authentication/screens/records/records_screen.dart';
 
 class Navigation extends StatelessWidget {
   const Navigation({super.key});
@@ -31,16 +30,9 @@ class Navigation extends StatelessWidget {
           onDestinationSelected: (index) =>
               controller.selectedIndex.value = index,
           destinations: [
-            NavigationDestination(icon: Icon(Iconsax.home), label: 'Home'),
-            NavigationDestination(
-              icon: Icon(Iconsax.heart),
-              label: 'Medications',
-            ),
-            NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-            NavigationDestination(
-              icon: Icon(Iconsax.profile_circle),
-              label: 'Profile',
-            ),
+            NavigationDestination(icon: Icon(Iconsax.home), label: 'Dashboard'),
+            NavigationDestination(icon: Icon(Iconsax.note_21), label: 'Records'),
+            NavigationDestination(icon: Icon(Iconsax.user_square), label: 'Profile'),
           ],
         ),
       ),
@@ -53,8 +45,7 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
   final screens = [
     HomeScreen(),
-    CoursesScreen(),
-    QuizScreen(),
+    RecordsScreen(),
     ProfileScreen(),
   ];
 }

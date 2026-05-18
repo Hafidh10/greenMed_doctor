@@ -5,6 +5,7 @@ import 'package:greenmed_doctor/utils/popups/loaders.dart';
 import 'package:greenmed_doctor/utils/popups/full_screen_loader.dart';
 import 'package:greenmed_doctor/utils/constants/image_strings.dart';
 import 'package:greenmed_doctor/navigation.dart';
+import 'package:greenmed_doctor/utils/notifications/notification_service.dart';
 
 class LoginController extends GetxController {
   static LoginController get instance => Get.find();
@@ -67,11 +68,14 @@ class LoginController extends GetxController {
         message: 'You have logged in successfully.',
       );
       
-      // 7. Clear controllers
+      // 7. Initialize Notifications (FCM)
+      await NotificationService.instance.initNotifications();
+      
+      // 8. Clear controllers
       emailController.clear();
       passwordController.clear();
 
-      // 8. Navigate to Navigation (Dashboard)
+      // 9. Navigate to Navigation (Dashboard)
       Get.offAll(() => const Navigation());
 
     } on AuthException catch (e) {

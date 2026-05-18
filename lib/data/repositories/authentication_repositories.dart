@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../features/authentication/screens/login/login.dart';
 import '../../features/authentication/screens/onboarding/onboarding.dart';
 import '../../navigation.dart';
+import '../../utils/notifications/notification_service.dart';
 import '../../utils/popups/loaders.dart';
 
 class AuthenticationRepository extends GetxController {
@@ -45,6 +46,7 @@ class AuthenticationRepository extends GetxController {
             .single();
 
         if (profile['role'] == 'doctor') {
+          await NotificationService.instance.initNotifications();
           Get.offAll(() => const Navigation());
         } else {
           // If somehow a patient logged in here, sign them out

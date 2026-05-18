@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:greenmed_doctor/data/repositories/authentication_repositories.dart';
 import 'package:greenmed_doctor/firebase_options.dart';
 import 'package:greenmed_doctor/utils/constants/api_constants.dart';
+import 'package:greenmed_doctor/utils/notifications/notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
@@ -46,6 +47,7 @@ void main() async {
 
   // Initialize Authentication repository
   Get.put(AuthenticationRepository());
+  Get.put(NotificationService());
 
   runApp(const MyApp());
 }

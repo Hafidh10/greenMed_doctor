@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:greenmed_doctor/data/repositories/health_check_repository.dart';
 import 'package:greenmed_doctor/models/health_check_model.dart';
+import 'package:intl/intl.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../controller/review_controller.dart';
 
@@ -23,13 +25,14 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
   void initState() {
     super.initState();
     
-    // Use Get.put and store the reference
+    // Initialize the controller
     controller = Get.put(ReviewController());
     
-    // Initialize the controller and its fields only once
-    controller.feedbackController.text = widget.healthCheck.doctorFeedback ?? '';
+    // Reset controller states for a fresh review session
+    controller.feedbackController.text = '';
     controller.medsController.text = widget.healthCheck.prescribedMeds ?? '';
     controller.priceController.text = widget.healthCheck.totalPrice?.toString() ?? '';
+    controller.isStable.value = true;
     
     _loadPatientProfile();
   }
@@ -47,8 +50,6 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Instead of using ReviewController.instance (which calls Get.find), 
-    // we use the 'controller' reference we initialized in initState.
     final patientName = _patientProfile != null 
         ? '${_patientProfile!['first_name']} ${_patientProfile!['last_name']}'
         : 'Loading...';
@@ -70,15 +71,15 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             Text(
-              'Submitted: ${widget.healthCheck.createdAt}',
+              'Submitted: ${DateFormat('dd MMM yyyy, hh:mm a').format(widget.healthCheck.createdAt)}',
               style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
             const SizedBox(height: 16),
-            _buildDetailCard('Chief Complaint', widget.healthCheck.complain, Icons.warning_amber_rounded),
-            if (widget.healthCheck.feelingDescription != null)
-              _buildDetailCard('Description', widget.healthCheck.feelingDescription!, Icons.description),
-            if (widget.healthCheck.medications != null)
-              _buildDetailCard('Current Meds', widget.healthCheck.medications!, Icons.medication),
+            _buildDetailCard('Chief Complaint', widget.healthCheck.complain, Iconsax.warning_2),
+            if (widget.healthCheck.feelingDescription != null && widget.healthCheck.feelingDescription!.isNotEmpty)
+              _buildDetailCard('Description', widget.healthCheck.feelingDescription!, Iconsax.document_text),
+            if (widget.healthCheck.medications != null && widget.healthCheck.medications!.isNotEmpty)
+              _buildDetailCard('Current Meds', widget.healthCheck.medications!, Iconsax.card_pos),
             
             const SizedBox(height: 16),
             const Text('Vitals', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -86,12 +87,29 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
             _buildVitalsGrid(widget.healthCheck),
             
             const SizedBox(height: 32),
-            const Text('Doctor\'s Review', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text('Clinical Assessment', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+
+            // 1. Stability Toggle
+            Obx(() => _buildAssessmentTile(
+              title: "Patient Condition",
+              subtitle: controller.isStable.value ? "Stable - No immediate risk" : "Unstable - Needs monitoring",
+              icon: controller.isStable.value ? Iconsax.tick_circle : Iconsax.danger,
+              color: controller.isStable.value ? Colors.green : Colors.red,
+              trailing: Switch(
+                value: controller.isStable.value,
+                activeColor: SkiiveColors.primary,
+                onChanged: (value) => controller.isStable.value = value,
+              ),
+            )),
+
+            const SizedBox(height: 16),
             
-            _buildInputField('Clinical Feedback', controller.feedbackController, maxLines: 3),
+            _buildInputField('Additional Clinical Notes', controller.feedbackController, maxLines: 3),
             const SizedBox(height: 12),
-            _buildInputField('Prescribed Medications', controller.medsController, maxLines: 3),
+            _buildInputField('Prescribed Medications (if any)', controller.medsController, maxLines: 3),
             const SizedBox(height: 12),
             _buildInputField('Total Price (RM)', controller.priceController, keyboardType: TextInputType.number),
             
@@ -104,11 +122,46 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 2,
               ),
-              child: const Text('Submit & Notify Patient', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text('Complete Review', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  Color _getUrgencyColor(String level) {
+    switch (level) {
+      case 'Urgent': return Colors.red;
+      case 'Follow-up': return Colors.orange;
+      default: return SkiiveColors.primary;
+    }
+  }
+
+  Widget _buildAssessmentTile({required String title, required String subtitle, required IconData icon, required Color color, required Widget trailing}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+              ],
+            ),
+          ),
+          trailing,
+        ],
       ),
     );
   }
@@ -163,7 +216,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54)),
                 const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.4)),
+                Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
               ],
             ),
           ),
@@ -179,14 +232,24 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
-      childAspectRatio: 1.8, // Increased significantly to make grids much smaller/shorter
+      childAspectRatio: 2.2,
       children: [
-        _buildVitalTile('BP', '${data.systolicBP.toInt()}/${data.diastolicBP.toInt()}', 'mmHg'),
-        _buildVitalTile('Pulse', data.pulseRate.toInt().toString(), 'bpm'),
-        if (data.fbs != null) _buildVitalTile('FBS', data.fbs.toString(), 'mmol/L'),
-        if (data.postprandialSugar != null) _buildVitalTile('Post-Meal', data.postprandialSugar.toString(), 'mmol/L'),
-        if (data.hba1c != null) _buildVitalTile('HbA1c', data.hba1c.toString(), '%'),
-        if (data.weight != null) _buildVitalTile('Weight', data.weight.toString(), 'kg'),
+        if (data.systolicBP != null && data.diastolicBP != null)
+          _buildVitalTile('BP', '${data.systolicBP!.toInt()}/${data.diastolicBP!.toInt()}', 'mmHg'),
+        if (data.pulseRate != null)
+          _buildVitalTile('Pulse', data.pulseRate!.toInt().toString(), 'bpm'),
+        if (data.temperature != null)
+          _buildVitalTile('Temp', '${data.temperature}°', 'C'),
+        if (data.fbs != null)
+          _buildVitalTile('FBS', data.fbs.toString(), 'mmol/L'),
+        if (data.postprandialSugar != null)
+          _buildVitalTile('Post-Meal', data.postprandialSugar.toString(), 'mmol/L'),
+        if (data.hba1c != null)
+          _buildVitalTile('HbA1c', data.hba1c.toString(), '%'),
+        if (data.weight != null)
+          _buildVitalTile('Weight', data.weight.toString(), 'kg'),
+        if (data.height != null)
+          _buildVitalTile('Height', data.height.toString(), 'cm'),
       ],
     );
   }
@@ -201,8 +264,8 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: SkiiveColors.primary)),
+          Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: SkiiveColors.primary)),
           Text(unit, style: const TextStyle(fontSize: 8, color: Colors.grey)),
         ],
       ),

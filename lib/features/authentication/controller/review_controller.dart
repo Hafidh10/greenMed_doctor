@@ -16,11 +16,14 @@ class ReviewController extends GetxController {
   final priceController = TextEditingController();
   final HealthCheckRepository _repository = HealthCheckRepository();
 
+  // Professional Assessment State
+  final isStable = true.obs;
+
   Future<void> submitReview(HealthCheck healthCheck) async {
     try {
       // 1. Validation
       if (feedbackController.text.trim().isEmpty) {
-        TLoaders.warningSnackBar(title: 'Empty Feedback', message: 'Please provide clinical feedback for the patient.');
+        TLoaders.warningSnackBar(title: 'Empty Review', message: 'Please provide clinical feedback for the patient.');
         return;
       }
 
@@ -30,7 +33,14 @@ class ReviewController extends GetxController {
         TImages.docerAnimation,
       );
 
-      // 3. Prepare updated object
+      // 3. Construct professional feedback string
+      String clinicalFeedback = feedbackController.text.trim();
+      
+      // Add Stability header for professionalism
+      String finalFeedback = "ASSESSMENT: ${isStable.value ? 'STABLE' : 'REQUIRES ATTENTION'}\n\n"
+                            "$clinicalFeedback";
+
+      // 4. Prepare updated object
       final updatedCheck = HealthCheck(
         id: healthCheck.id,
         userId: healthCheck.userId,
@@ -49,24 +59,23 @@ class ReviewController extends GetxController {
         weight: healthCheck.weight,
         createdAt: healthCheck.createdAt,
         status: HealthCheckStatus.reviewed,
-        doctorFeedback: feedbackController.text.trim(),
+        doctorFeedback: finalFeedback,
         prescribedMeds: medsController.text.trim(),
         totalPrice: double.tryParse(priceController.text.trim()),
         paymentReference: healthCheck.paymentReference,
-        isStable: healthCheck.isStable,
       );
 
-      // 4. Update Repository (Supabase)
+      // 5. Update Repository
       await _repository.updateHealthCheck(updatedCheck);
 
-      // 5. Stop Loader
+      // 6. Stop Loader
       TFullScreenLoader.stopLoading();
 
-      // 6. Navigate to Success Screen
+      // 7. Navigate to Success
       Get.offAll(() => SuccessScreen(
-            image: TImages.successfullyRegisterAnimation, // Reusing success animation
+            image: TImages.successfullyRegisterAnimation,
             title: 'Review Submitted!',
-            subTitle: 'Your medical feedback has been successfully sent to the patient.',
+            subTitle: 'Your assessment has been sent. The patient is marked as ${isStable.value ? 'Stable' : 'under review'}.',
             onPressed: () => Get.offAll(() => const Navigation()),
           ));
 
